@@ -1,28 +1,25 @@
-name: Rust
+name: Deploy to Cloudflare Workers
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-env:
-  CARGO_TERM_COLOR: always
+    branches:
+      - master
+  repository_dispatch:
 
 jobs:
-  build:
-
+  build-and-deploy:
     runs-on: ubuntu-latest
-
+    name: Build & Deploy
     steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
-    - name: Publish
-      uses: cloudflare/wrangler-action@1.3.0
-      with:
-        apiToken: ${{ secrets.CF_API_TOKEN }}
-      env:
-        CF_ACCOUNT_ID: ${{secrets.CF_ACCOUNT_ID}}
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+      - run: npm install
+      - name: Publish
+        uses: cloudflare/wrangler-action@1.2.0
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+        env:
+          CF_ACCOUNT_ID: ${{secrets.CF_ACCOUNT_ID}}
